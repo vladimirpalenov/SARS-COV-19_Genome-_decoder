@@ -25,8 +25,12 @@ def create_codon_dictionary(filename):
 
 
 
-#A5 todo
-#refer to handout for function details
+# Program 2:  Creating abbreviation dictionary
+# def create_abbreviation_dictionary(codon_dictionary):
+# This function takes in a codon dictionary as an argument
+# and returns a  new  abbreviation dictionary where:
+# key = amino_acid_abbr2 (i.e.  the single letter abbreviation)
+# value = [amino_acid_abbr1 , full_name]
 def create_abbreviation_dictionary(codon_dictionary):
     abbreviation_dictionary = {}
     for elem in codon_dictionary:
@@ -34,11 +38,14 @@ def create_abbreviation_dictionary(codon_dictionary):
     return abbreviation_dictionary
 
 
-#A5 todo
-#refer to handout for function details
+# Program 3:  Fasta file to string
+# def fasta_to_string(filename):
+# This function takes in a filename as an argument
+# and returns a  string of genomic sequence
 def fasta_to_string(filename):
     fastaString = ""
     with open(filename, 'r') as file:
+        file.readline()
         temp = file.read()
         for char in temp:
             if 65 <= ord(char) <= 90:
@@ -46,16 +53,23 @@ def fasta_to_string(filename):
     return fastaString
 
 
-#A5 todo
-#refer to handout for function details
+# Program 4:  Translate
+# def translate(genome,codon_dictionary,start_seq,stop_seq):
+# This function takes in a genome string, codone dictionary, start
+# sequence string and stop sequence string as arguments
+# and returns a translated string of single letter amino acid abbreviations
 def translate(genome,codon_dictionary,start_seq,stop_seq):
     result = ""
-    for item in range (len(start_seq), genome.find(stop_seq) - 2 , 3):
-        abbrev = "" + genome[item : item + 3]
+    for item in range (len(start_seq), genome.find(stop_seq), 3):
+        abbrev = genome[item : item + 3]
         result = result + codon_dictionary[abbrev][1]
     return result
 
-# counter function
+# Program 5:  Counter
+# def count (char, string):
+# counter function takes in a character and a string as arguments
+# and counts how many times the character occurs in the string
+# returns an integer number of occurences
 def count (char, string):
     count = 0
     for item in string:
@@ -63,10 +77,7 @@ def count (char, string):
             count = count + 1
     return count
 
-
-
-#todo:step 1
-#read in the fasta file
+#done:step 1 read in the fasta file
 filename = "NC_045512.fasta"
 genome = fasta_to_string(filename)
 
@@ -74,43 +85,37 @@ genome = fasta_to_string(filename)
 filename = "codon_to_amino.csv"
 codon_dictionary = create_codon_dictionary(filename)
 
-#todo:step 3
-#create abbreviation to full name dictionary
+
+#done: step 3 create abbreviation to full name dictionary
 abbr_amino_dictionary = create_abbreviation_dictionary(codon_dictionary)
 
-#todo:step 4
-#Translate the Sequence from FASTA to coded
+
+#done: step 4 Translate the Sequence from FASTA to coded
 start_seq = genome[0:265]     #5' UTR Start Sequence 1..265
 stop_seq = genome[29674:29903]#3'UTR stop sequence  29675..29903
 encoded_genome = translate(genome, codon_dictionary, start_seq, stop_seq)
 
 
+#done: step 5 get glycoprotein substring from encoded_genome
+surf_start = 7099
+surf_end = 8372
+glycoprotein = encoded_genome[surf_start:surf_end]
 
 
-#todo:step 5
-#get glycoprotein substring from encoded_genome
-surf_start = genome[0 : 21563]
-surf_end = genome[25383 : 29903]
-glycoprotein = translate(genome, codon_dictionary, surf_start, surf_end)
-
-
-
-
-#todo:step 6
-#print out table using abbr_amino_dictionary
+#done: step 6 print out table using abbr_amino_dictionary
 for item in abbr_amino_dictionary:
     print(item, abbr_amino_dictionary[item][0], "\t", abbr_amino_dictionary[item][1])
 
-#todo:step 7
-#write user command line interface
+
+#done: step 7 user command line interface
 while True:
     answer = input("\nTo view the translated surface glycoprotein enter 1\n"\
     "To view the sars-cov-2 genome enter 2\n"\
     "Or enter in a protein abbreviation to check if in the Spike Glycoprotein (3 to exit):\n")
     if (answer == '1'):
-        print(glycoprotein)
+        print("Translated surface glycoprotein: \n",glycoprotein)
     elif (answer == '2'):
-        print("SARS_COV-2 genome: ", genome)
+        print("SARS_COV-2 genome: \n", genome)
     elif (answer == '3'):
         print("Thank you!")
         break
@@ -118,6 +123,9 @@ while True:
         print("Empty input. Please try again.\n")
     else:
         if(answer in abbr_amino_dictionary):
-            print(abbr_amino_dictionary[answer][1], "(", answer, ") is in the spike protein and is coded for ", count(answer, glycoprotein)," times\n")
+            if (answer not in glycoprotein):
+                print(abbr_amino_dictionary[answer][1], "(", answer, ") is not in the spike protein")
+            else:
+                print(abbr_amino_dictionary[answer][1], "(", answer, ") is in the spike protein and is coded for ", count(answer, glycoprotein)," times\n")
         else:
             print("Wrong input. Please try again.\n")
